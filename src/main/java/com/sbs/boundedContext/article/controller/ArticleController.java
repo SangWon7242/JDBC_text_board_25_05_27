@@ -4,6 +4,9 @@ import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
 import com.sbs.global.simpleDb.Sql;
 
+import java.util.List;
+import java.util.Map;
+
 public class ArticleController {
 
   public void doWrite(Rq rq) {
@@ -24,5 +27,21 @@ public class ArticleController {
     long newId = sql.insert();
 
     System.out.printf("%d번 게시물이 등록되었습니다.\n", newId);
+  }
+
+  public void showList(Rq rq) {
+    Sql sql = rq.sql();
+    sql.append("SELECT *");
+    sql.append("FROM article");
+    sql.append("ORDER BY id DESC");
+
+    List<Map<String, Object>> articleRows = sql.selectRows();
+
+    System.out.println("== 게시물 리스트 ==");
+    System.out.println("번호 | 제목 | 작성날짜");
+    
+    articleRows.forEach(articleRow -> {
+      System.out.printf("%d번 | %s | %s\n", (long) articleRow.get("id"), articleRow.get("subject"), articleRow.get("createDate"));
+    });
   }
 }

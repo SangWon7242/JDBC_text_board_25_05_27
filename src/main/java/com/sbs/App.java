@@ -34,6 +34,8 @@ public class App {
 
       if(rq.getActionPath().equals("/usr/article/write")) {
         articleController.doWrite(rq);
+      } if(rq.getActionPath().equals("/usr/article/list")) {
+        articleController.showList(rq);
       } else if (cmd.equals("exit")) {
         System.out.println("게시판을 종료합니다.");
         break;
