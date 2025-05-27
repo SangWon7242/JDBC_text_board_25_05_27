@@ -33,8 +33,18 @@ public class SimpleDbTest {
   }
   
   @Test
-  @DisplayName("Insert 테스트")
+  @DisplayName("INSERT 테스트")
   public void t1() {
-    
+    int no = 1;
+    String subject = "제목 %d".formatted(no);
+    String content = "내용 %d".formatted(no);
+
+    simpleDb.run("""
+        INSERT INTO article
+        SET createDate = NOW(),
+        modifiedDate = NOW(),
+        subject = ?,
+        content = ?;
+        """, subject, content);
   }
 }
