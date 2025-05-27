@@ -4,6 +4,11 @@ import com.sbs.global.simpleDb.SimpleDb;
 import com.sbs.global.simpleDb.Sql;
 import org.junit.jupiter.api.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
@@ -23,10 +28,25 @@ public class SimpleDbTest {
   @BeforeEach
   public void beforeEach() {
     truncateArticleTable();
+    makeArticleTestData();
   }
 
   private void truncateArticleTable() {
     simpleDb.run("TRUNCATE article");
+  }
+
+  private void makeArticleTestData() {
+    IntStream.rangeClosed(1, 5).forEach(i -> {
+      String subject = "제목 %d".formatted(i);
+      String content = "내용 %d".formatted(i);
+      simpleDb.run("""
+          INSERT INTO article
+          SET createDate = NOW(),
+          modifiedDate = NOW(),
+          subject = ?,
+          content = ?;
+          """, subject, content);
+    });
   }
 
   private void createArticleTable() {
@@ -70,8 +90,34 @@ public class SimpleDbTest {
 
     // 들어온 값이 0보다 크면 성공, 0보다 작으면 실패
     assertThat(newId).isGreaterThan(0);
-    
-    // 들어온 값이 1이랑 같냐
-    // assertThat(newId).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("SELECT 테스트 1 : 정순 조회")
+  public void t2() {
+    Sql sql = simpleDb.genSql();
+
+    sql.append("SELECT *");
+    sql.append("FROM article");
+    sql.append("ORDER BY id ASC");
+
+    // 데이터가 2차원으로 날라옴
+    List<Map<String, Object>> articleRows = sql.selectRows();
+
+    // 정순 체크
+    IntStream.range(0, articleRows.size()).forEach(i -> {
+      long id = i + 1;
+      Map<String, Object> articleRow = articleRows.get(i);
+
+      assertThat(articleRow.get("id")).isEqualTo(id);
+      assertThat(articleRow.get("createDate")).isInstanceOf(LocalDateTime.class);
+      assertThat(articleRow.get("createDate")).isNotNull();
+      assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
+      assertThat(articleRow.get("modifiedDate")).isNotNull();
+      assertThat(articleRow.get("subject")).isEqualTo("제목 %d". formatted(id));
+      assertThat(articleRow.get("content")).isEqualTo("내용 %d". formatted(id));
+    });
+
+    assertThat(articleRows.size()).isEqualTo(5);
   }
 }
