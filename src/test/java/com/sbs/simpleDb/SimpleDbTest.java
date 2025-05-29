@@ -208,4 +208,22 @@ public class SimpleDbTest {
     long affectedRowsCount = sql.update();
     assertThat(affectedRowsCount).isEqualTo(4);
   }
+
+  @Test
+  @DisplayName("DELETE 테스트")
+  public void t7() {
+    Sql sql = simpleDb.genSql();
+
+    /*
+    DELETE FROM article
+    WHERE id IN (1, 3, 5);
+    */
+
+    sql.append("DELETE FROM article")
+        .append("WHERE id IN (?, ?, ?)", 1, 3, 5);
+    
+    // 삭제된 row 개수
+    long affectedRowsCount = sql.delete();
+    assertThat(affectedRowsCount).isEqualTo(3);
+  }
 }
