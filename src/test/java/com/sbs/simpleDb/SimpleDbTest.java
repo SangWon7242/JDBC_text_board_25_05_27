@@ -201,7 +201,8 @@ public class SimpleDbTest {
     */
 
     sql.append("UPDATE article")
-        .append("SET subject = '제목 new'")
+        .append("SET modifiedDate = NOW()")
+        .append(", subject = '제목 new'")
         .append("WHERE id IN (?, ?, ?, ?)", 1, 2, 3, 4);
 
     long affectedRowsCount = sql.update();
