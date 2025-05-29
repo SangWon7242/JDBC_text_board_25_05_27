@@ -149,4 +149,25 @@ public class SimpleDbTest {
 
     assertThat(articleRows.size()).isEqualTo(5);
   }
+
+  @Test
+  @DisplayName("SELECT 테스트 3 : 원하는 게시물 번호 조회")
+  public void t4() {
+    Sql sql = simpleDb.genSql();
+    /*
+    sql.append("SELECT *");
+    sql.append("FROM article");
+    sql.append("WHERE id = 1");
+     */
+    sql.append("SELECT * FROM article WHERE id = 1");
+    Map<String, Object> articleRow = sql.selectRow();
+
+    assertThat(articleRow.get("id")).isEqualTo(1L);
+    assertThat(articleRow.get("createDate")).isInstanceOf(LocalDateTime.class);
+    assertThat(articleRow.get("createDate")).isNotNull();
+    assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
+    assertThat(articleRow.get("modifiedDate")).isNotNull();
+    assertThat(articleRow.get("subject")).isEqualTo("제목 1");
+    assertThat(articleRow.get("content")).isEqualTo("내용 1");
+  }
 }
