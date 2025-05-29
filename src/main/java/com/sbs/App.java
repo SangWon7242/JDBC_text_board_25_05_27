@@ -16,6 +16,8 @@ public class App {
     simpleDb = new SimpleDb("localhost", "root", "", "JDBC_text_board");
     simpleDb.setDevMode(true); // 개발 모드
 
+    Container.init(simpleDb);
+
     articleController = Container.articleController;
   }
 
@@ -31,7 +33,7 @@ public class App {
       System.out.printf("%s) ", promptName);
       String cmd = sc.nextLine();
 
-      rq.setCommand(cmd, simpleDb);
+      rq.setCommand(cmd);
 
       Controller controller = getControllerByUrl(rq.getUrlPath());
 

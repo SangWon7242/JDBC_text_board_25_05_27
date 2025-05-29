@@ -1,6 +1,5 @@
 package com.sbs.global.base;
 
-import com.sbs.global.simpleDb.SimpleDb;
 import com.sbs.global.simpleDb.Sql;
 import com.sbs.global.util.Util;
 import lombok.Getter;
@@ -46,12 +45,10 @@ public class Rq {
     return "/%s/%s/%s".formatted(controllerTypeCode, controllerName, actionMethodName);
   }
 
-  public void setCommand(String url, SimpleDb simpleDb) {
+  public void setCommand(String url) {
     this.url = url;
     params = Util.getParamsFromUrl(this.url);
     urlPath = Util.getPathFromUrl(this.url);
-
-    sql = simpleDb.genSql();
   }
 
   public int getIntParam(String paramName, int defaultValue) {
@@ -82,9 +79,5 @@ public class Rq {
     if (!params.containsKey(paramName)) return defaultValue;
 
     return params.get(paramName);
-  }
-
-  public Sql sql() {
-    return sql;
   }
 }
