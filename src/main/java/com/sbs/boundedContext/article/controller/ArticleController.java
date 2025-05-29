@@ -58,6 +58,39 @@ public class ArticleController implements Controller {
   }
 
   private void showDetail(Rq rq) {
+    long id = rq.getLongParam("id", 0L);
+
+    if(id == 0) {
+      System.out.println("올바른 값을 입력해주세요.");
+      return;
+    }
+
+    /*
+    Sql sql = rq.sql();
+    sql.append("SELECT COUNT(*) > 0");
+    sql.append("FROM article");
+    sql.append("WHERE id = ?", id);
+
+    boolean isExist = sql.selectBoolean();
+
+    if(!isExist) {
+      System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
+      return;
+    }
+     */
+
+    Sql sql = rq.sql();
+    sql.append("SELECT *");
+    sql.append("FROM article");
+    sql.append("WHERE id = ?", id);
+
+    Map<String, Object> articleRow = sql.selectRow();
+
     System.out.println("== 게시물 상세보기 ==");
+    System.out.printf("번호 : %d\n", (long) articleRow.get("id"));
+    System.out.printf("작성 날짜 : %s\n", articleRow.get("createDate"));
+    System.out.printf("수정 날짜 : %s\n", articleRow.get("modifiedDate"));
+    System.out.printf("제목 : %s\n", articleRow.get("subject"));
+    System.out.printf("내용 : %s\n", articleRow.get("content"));
   }
 }

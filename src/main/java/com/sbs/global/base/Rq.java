@@ -66,6 +66,18 @@ public class Rq {
     }
   }
 
+  public Long getLongParam(String paramName, Long defaultValue) {
+    if (!params.containsKey(paramName)) {
+      return defaultValue;
+    }
+
+    try {
+      return Long.parseLong(params.get(paramName));
+    } catch (NumberFormatException e) {
+      return defaultValue;
+    }
+  }
+
   public String getParam(String paramName, String defaultValue) {
     if (!params.containsKey(paramName)) return defaultValue;
 
