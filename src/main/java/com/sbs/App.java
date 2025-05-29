@@ -1,6 +1,7 @@
 package com.sbs;
 
 import com.sbs.boundedContext.article.controller.ArticleController;
+import com.sbs.boundedContext.common.controller.Controller;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
 import com.sbs.global.simpleDb.SimpleDb;
@@ -32,16 +33,24 @@ public class App {
 
       rq.setCommand(cmd, simpleDb);
 
-      if(rq.getActionPath().equals("/usr/article/write")) {
-        articleController.doWrite(rq);
-      } if(rq.getActionPath().equals("/usr/article/list")) {
-        articleController.showList(rq);
-      } else if (cmd.equals("exit")) {
+      Controller controller = getControllerByUrl(rq.getUrlPath());
+
+      if(controller != null) {
+        controller.performAction(rq);
+      } else if (rq.getUrlPath().equals("exit")) {
         System.out.println("게시판을 종료합니다.");
         break;
       }
     }
 
     sc.close();
+  }
+
+  private Controller getControllerByUrl(String urlPath) {
+    if(urlPath.startsWith("/usr/article")) {
+      return articleController;
+    }
+
+    return null;
   }
 }

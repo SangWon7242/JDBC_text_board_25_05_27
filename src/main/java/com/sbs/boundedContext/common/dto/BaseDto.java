@@ -1,4 +1,4 @@
-package com.sbs.boundedContext.common;
+package com.sbs.boundedContext.common.dto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,5 +1,6 @@
 package com.sbs.boundedContext.article.controller;
 
+import com.sbs.boundedContext.common.controller.Controller;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
 import com.sbs.global.simpleDb.Sql;
@@ -7,7 +8,16 @@ import com.sbs.global.simpleDb.Sql;
 import java.util.List;
 import java.util.Map;
 
-public class ArticleController {
+public class ArticleController implements Controller {
+
+  @Override
+  public void performAction(Rq rq) {
+    switch (rq.getUrlPath()) {
+      case "/usr/article/write" -> doWrite(rq);
+      case "/usr/article/list" -> showList(rq);
+      case "/usr/article/detail" -> showDetail(rq);
+    }
+  }
 
   public void doWrite(Rq rq) {
     System.out.println("== 게시물 작성 ==");
@@ -43,5 +53,11 @@ public class ArticleController {
     articleRows.forEach(articleRow -> {
       System.out.printf("%d번 | %s | %s\n", (long) articleRow.get("id"), articleRow.get("subject"), articleRow.get("createDate"));
     });
+
+
+  }
+
+  private void showDetail(Rq rq) {
+    System.out.println("== 게시물 상세보기 ==");
   }
 }
