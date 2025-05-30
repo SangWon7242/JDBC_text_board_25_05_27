@@ -1,12 +1,12 @@
 package com.sbs.boundedContext.article.controller;
 
+import com.sbs.boundedContext.article.dto.Article;
 import com.sbs.boundedContext.article.service.ArticleService;
 import com.sbs.boundedContext.common.controller.Controller;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
 
 import java.util.List;
-import java.util.Map;
 
 public class ArticleController implements Controller {
   private ArticleService articleService;
@@ -51,19 +51,18 @@ public class ArticleController implements Controller {
   }
 
   public void showList(Rq rq) {
-    List<Map<String, Object>> articleRows = articleService.findAll();
+    List<Article> articles = articleService.findAll();
 
-
-    if(articleRows.isEmpty()) {
+    if(articles.isEmpty()) {
       System.out.println("게시물이 없습니다.");
       return;
     }
 
     System.out.println("== 게시물 리스트 ==");
     System.out.println("번호 | 제목 | 작성날짜");
-    
-    articleRows.forEach(articleRow -> {
-      System.out.printf("%d번 | %s | %s\n", (long) articleRow.get("id"), articleRow.get("subject"), articleRow.get("createDate"));
+
+    articles.forEach(article -> {
+      System.out.printf("%d번 | %s | %s\n", article.getId(), article.getSubject(), article.getCreateDate());
     });
   }
 
@@ -75,19 +74,19 @@ public class ArticleController implements Controller {
       return;
     }
 
-    Map<String, Object> articleRow = articleService.findById(id);
+    Article article = articleService.findById(id);
 
-    if (articleRow == null) {
+    if (article == null) {
       System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
       return;
     }
 
     System.out.println("== 게시물 상세보기 ==");
-    System.out.printf("번호 : %d\n", (long) articleRow.get("id"));
-    System.out.printf("작성 날짜 : %s\n", articleRow.get("createDate"));
-    System.out.printf("수정 날짜 : %s\n", articleRow.get("modifiedDate"));
-    System.out.printf("제목 : %s\n", articleRow.get("subject"));
-    System.out.printf("내용 : %s\n", articleRow.get("content"));
+    System.out.printf("번호 : %d\n", article.getId());
+    System.out.printf("작성 날짜 : %s\n", article.getCreateDate());
+    System.out.printf("수정 날짜 : %s\n", article.getModifiedDate());
+    System.out.printf("제목 : %s\n", article.getSubject());
+    System.out.printf("내용 : %s\n", article.getContent());
   }
 
   private void doModify(Rq rq) {
@@ -98,9 +97,9 @@ public class ArticleController implements Controller {
       return;
     }
 
-    Map<String, Object> articleRow = articleService.findById(id);
+    Article article = articleService.findById(id);
 
-    if (articleRow == null) {
+    if (article == null) {
       System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
       return;
     }
@@ -136,9 +135,9 @@ public class ArticleController implements Controller {
       return;
     }
 
-    Map<String, Object> articleRow = articleService.findById(id);
+    Article article = articleService.findById(id);
 
-    if (articleRow == null) {
+    if (article == null) {
       System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
       return;
     }

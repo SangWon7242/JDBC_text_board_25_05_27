@@ -1,11 +1,11 @@
 package com.sbs.boundedContext.article.repository;
 
+import com.sbs.boundedContext.article.dto.Article;
 import com.sbs.container.Container;
 import com.sbs.global.simpleDb.Sql;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class ArticleRepository {
   public long write(String subject, String content) {
@@ -21,13 +21,13 @@ public class ArticleRepository {
     return newId;
   }
 
-  public List<Map<String, Object>> findAll() {
+  public List<Article> findAll() {
     Sql sql = Container.simpleDb.genSql();
     sql.append("SELECT *");
     sql.append("FROM article");
     sql.append("ORDER BY id DESC");
 
-    List<Map<String, Object>> articleRows = sql.selectRows();
+    List<Article> articleRows = sql.selectRows(Article.class);
 
     // if(articleRows.isEmpty()) return null;
     if(articleRows.isEmpty()) return Collections.emptyList();
@@ -35,17 +35,17 @@ public class ArticleRepository {
     return articleRows;
   }
 
-  public Map<String, Object> findById(long id) {
+  public Article findById(long id) {
     Sql sql = Container.simpleDb.genSql();
     sql.append("SELECT *");
     sql.append("FROM article");
     sql.append("WHERE id = ?", id);
 
-    Map<String, Object> articleRow = sql.selectRow();
+    Article article = sql.selectRow(Article.class);
 
-    if(articleRow == null) return null;
+    if(article == null) return null;
 
-    return articleRow;
+    return article;
   }
 
   public void modify(long id, String subject, String content) {
