@@ -53,6 +53,7 @@ public class ArticleController implements Controller {
   public void showList(Rq rq) {
     List<Map<String, Object>> articleRows = articleService.findAll();
 
+
     if(articleRows.isEmpty()) {
       System.out.println("게시물이 없습니다.");
       return;

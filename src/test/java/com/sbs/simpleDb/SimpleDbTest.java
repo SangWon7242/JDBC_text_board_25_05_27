@@ -1,5 +1,6 @@
 package com.sbs.simpleDb;
 
+import com.sbs.boundedContext.article.dto.Article;
 import com.sbs.global.simpleDb.SimpleDb;
 import com.sbs.global.simpleDb.Sql;
 import org.junit.jupiter.api.*;
@@ -163,7 +164,7 @@ public class SimpleDbTest {
     Map<String, Object> articleRow = sql.selectRow();
 
     assertThat(articleRow.get("id")).isEqualTo(1L);
-    assertThat(articleRow.get("createDate")).isInstanceOf(LocalDateTime.class);
+    assertThat(articleRow.get("createDate")).isInstanceOf(LocalDateTime.class); // LocalDateTime의 클래스의 Class 객체
     assertThat(articleRow.get("createDate")).isNotNull();
     assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
     assertThat(articleRow.get("modifiedDate")).isNotNull();
@@ -226,5 +227,33 @@ public class SimpleDbTest {
     // 삭제된 row 개수
     long affectedRowsCount = sql.delete();
     assertThat(affectedRowsCount).isEqualTo(3);
+  }
+
+  @Test
+  @DisplayName("selectRows, Article")
+  public void t8() {
+    Sql sql = simpleDb.genSql();
+
+    sql.append("SELECT *");
+    sql.append("FROM article");
+    sql.append("ORDER BY id ASC");
+
+    // 데이터가 2차원으로 날라옴
+    List<Article> articleRows = sql.selectRows(Article.class);
+
+    // 정순 체크
+    IntStream.range(0, articleRows.size()).forEach(i -> {
+      long id = i + 1;
+
+      Article article = articleRows.get(i);
+
+      assertThat(article.getId()).isEqualTo(id);
+      assertThat(article.getCreateDate()).isInstanceOf(LocalDateTime.class);
+      assertThat(article.getCreateDate()).isNotNull();
+      assertThat(article.getModifiedDate()).isInstanceOf(LocalDateTime.class);
+      assertThat(article.getModifiedDate()).isNotNull();
+      assertThat(article.getSubject()).isEqualTo("제목 %d". formatted(id));
+      assertThat(article.getContent()).isEqualTo("내용 %d". formatted(id));
+    });
   }
 }
