@@ -29,11 +29,12 @@ public class SimpleDbTest {
 
   @BeforeEach
   public void beforeEach() {
-    truncateArticleTable();
+    truncateTable();
     makeArticleTestData();
   }
 
-  private void truncateArticleTable() {
+  private void truncateTable() {
+    simpleDb.run("TRUNCATE `member`");
     simpleDb.run("TRUNCATE article");
   }
 
@@ -290,5 +291,35 @@ public class SimpleDbTest {
     assertThat(article.getModifiedDate()).isNotNull();
     assertThat(article.getSubject()).isEqualTo("제목 1");
     assertThat(article.getContent()).isEqualTo("내용 1");
+  }
+
+  @Test
+  @DisplayName("회원가입 테스트")
+  public void t10() {
+    String username = "user1";
+    String password = "1234";
+    String name = "양관식";
+
+    /*
+    INSERT INTO `member`
+    SET createDate = NOW(),
+    modifiedDate = NOW(),
+    username = 'user1',
+    password = '1234',
+    `name` = '양관식';
+    */
+
+    Sql sql = simpleDb.genSql();
+    sql.append("INSERT INTO `member`");
+    sql.append("SET createDate = NOW()");
+    sql.append(", modifiedDate = NOW()");
+    sql.append(", username = ?", username);
+    sql.append(", password = ?", password);
+    sql.append(", `name` = ?", name);
+
+    long newId = sql.insert();
+
+    // 들어온 값이 0보다 크면 성공, 0보다 작으면 실패
+    assertThat(newId).isGreaterThan(0);
   }
 }
