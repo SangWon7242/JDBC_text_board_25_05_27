@@ -238,7 +238,6 @@ public class SimpleDbTest {
     sql.append("FROM article");
     sql.append("ORDER BY id ASC");
 
-    // 데이터가 2차원으로 날라옴
     List<Article> articleRows = sql.selectRows(Article.class);
 
     // 정순 체크
@@ -255,5 +254,25 @@ public class SimpleDbTest {
       assertThat(article.getSubject()).isEqualTo("제목 %d". formatted(id));
       assertThat(article.getContent()).isEqualTo("내용 %d". formatted(id));
     });
+  }
+
+  @Test
+  @DisplayName("selectRow, Article")
+  public void t9() {
+    Sql sql = simpleDb.genSql();
+
+    sql.append("SELECT *");
+    sql.append("FROM article");
+    sql.append("WHERE id = 1");
+
+    Article article = sql.selectRow(Article.class);
+
+    assertThat(article.getId()).isEqualTo(1L);
+    assertThat(article.getCreateDate()).isInstanceOf(LocalDateTime.class);
+    assertThat(article.getCreateDate()).isNotNull();
+    assertThat(article.getModifiedDate()).isInstanceOf(LocalDateTime.class);
+    assertThat(article.getModifiedDate()).isNotNull();
+    assertThat(article.getSubject()).isEqualTo("제목 1");
+    assertThat(article.getContent()).isEqualTo("내용 1");
   }
 }
