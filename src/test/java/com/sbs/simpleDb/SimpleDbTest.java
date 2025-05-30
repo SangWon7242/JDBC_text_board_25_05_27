@@ -22,8 +22,9 @@ public class SimpleDbTest {
   public void beforeAll() {
     simpleDb = new SimpleDb("localhost", "root", "", "JDBC_text_board");
     simpleDb.setDevMode(true); // 개발 모드
-    
+
     createArticleTable();
+    createMemberTable();
   }
 
   @BeforeEach
@@ -60,6 +61,21 @@ public class SimpleDbTest {
         	modifiedDate DATETIME NOT NULL,
         	subject CHAR(100) NOT NULL,
         	content TEXT NOT NULL
+        )
+        """);
+  }
+
+  private void createMemberTable() {
+    simpleDb.run("DROP TABLE IF EXISTS `member`");
+
+    simpleDb.run("""
+        CREATE TABLE `member` (
+          id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+          createDate DATETIME NOT NULL,
+          modifiedDate DATETIME NOT NULL,
+          username CHAR(50) NOT NULL UNIQUE,
+          password CHAR(100) NOT NULL,
+          `name` CHAR(50) NOT NULL
         )
         """);
   }
