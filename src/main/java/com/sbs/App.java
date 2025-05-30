@@ -2,6 +2,7 @@ package com.sbs;
 
 import com.sbs.boundedContext.article.controller.ArticleController;
 import com.sbs.boundedContext.common.controller.Controller;
+import com.sbs.boundedContext.member.controller.MemberController;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
 import com.sbs.global.simpleDb.SimpleDb;
@@ -11,6 +12,7 @@ import java.util.Scanner;
 public class App {
   private SimpleDb simpleDb;
   private ArticleController articleController;
+  private MemberController memberController;
 
   public App() {
     simpleDb = new SimpleDb("localhost", "root", "", "JDBC_text_board");
@@ -18,6 +20,7 @@ public class App {
 
     Container.init(simpleDb);
 
+    memberController = Container.memberController;
     articleController = Container.articleController;
   }
 
@@ -51,6 +54,9 @@ public class App {
   private Controller getControllerByUrl(String urlPath) {
     if(urlPath.startsWith("/usr/article")) {
       return articleController;
+    }
+    else if(urlPath.startsWith("/usr/member")) {
+      return memberController;
     }
 
     return null;
