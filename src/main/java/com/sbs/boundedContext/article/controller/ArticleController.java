@@ -1,14 +1,19 @@
 package com.sbs.boundedContext.article.controller;
 
+import com.sbs.boundedContext.article.service.ArticleService;
 import com.sbs.boundedContext.common.controller.Controller;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
-import com.sbs.global.simpleDb.Sql;
 
 import java.util.List;
 import java.util.Map;
 
 public class ArticleController implements Controller {
+  private ArticleService articleService;
+
+  public ArticleController() {
+    articleService = Container.articleService;
+  }
 
   @Override
   public void performAction(Rq rq) {
@@ -40,25 +45,18 @@ public class ArticleController implements Controller {
       return;
     }
 
-    Sql sql = Container.simpleDb.genSql();
-    sql.append("INSERT INTO article");
-    sql.append("SET createDate = NOW()");
-    sql.append(", modifiedDate = NOW()");
-    sql.append(", subject = ?", subject);
-    sql.append(", content = ?", content);
-
-    long newId = sql.insert();
+    long newId = articleService.write(subject, content);
 
     System.out.printf("%d번 게시물이 등록되었습니다.\n", newId);
   }
 
   public void showList(Rq rq) {
-    Sql sql = Container.simpleDb.genSql();
-    sql.append("SELECT *");
-    sql.append("FROM article");
-    sql.append("ORDER BY id DESC");
+    List<Map<String, Object>> articleRows = articleService.findAll();
 
-    List<Map<String, Object>> articleRows = sql.selectRows();
+    if(articleRows.isEmpty()) {
+      System.out.println("게시물이 없습니다.");
+      return;
+    }
 
     System.out.println("== 게시물 리스트 ==");
     System.out.println("번호 | 제목 | 작성날짜");
@@ -66,8 +64,6 @@ public class ArticleController implements Controller {
     articleRows.forEach(articleRow -> {
       System.out.printf("%d번 | %s | %s\n", (long) articleRow.get("id"), articleRow.get("subject"), articleRow.get("createDate"));
     });
-
-
   }
 
   private void showDetail(Rq rq) {
@@ -78,24 +74,12 @@ public class ArticleController implements Controller {
       return;
     }
 
-    Sql sql = Container.simpleDb.genSql();
-    sql.append("SELECT COUNT(*) > 0");
-    sql.append("FROM article");
-    sql.append("WHERE id = ?", id);
+    Map<String, Object> articleRow = articleService.findById(id);
 
-    boolean isExist = sql.selectBoolean();
-
-    if(!isExist) {
+    if (articleRow == null) {
       System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
       return;
     }
-
-    sql = Container.simpleDb.genSql();
-    sql.append("SELECT *");
-    sql.append("FROM article");
-    sql.append("WHERE id = ?", id);
-
-    Map<String, Object> articleRow = sql.selectRow();
 
     System.out.println("== 게시물 상세보기 ==");
     System.out.printf("번호 : %d\n", (long) articleRow.get("id"));
@@ -113,14 +97,9 @@ public class ArticleController implements Controller {
       return;
     }
 
-    Sql sql = Container.simpleDb.genSql();
-    sql.append("SELECT COUNT(*) > 0");
-    sql.append("FROM article");
-    sql.append("WHERE id = ?", id);
+    Map<String, Object> articleRow = articleService.findById(id);
 
-    boolean isExist = sql.selectBoolean();
-
-    if(!isExist) {
+    if (articleRow == null) {
       System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
       return;
     }
@@ -143,14 +122,7 @@ public class ArticleController implements Controller {
       return;
     }
 
-    sql = Container.simpleDb.genSql();
-    sql.append("UPDATE article");
-    sql.append("SET modifiedDate = NOW()");
-    sql.append(", subject = ?", subject);
-    sql.append(", content = ?", content);
-    sql.append("WHERE id = ?", id);
-
-    sql.update();
+    articleService.modify(id, subject, content);
 
     System.out.printf("%d번 게시물이 수정되었습니다.\n", id);
   }
@@ -163,23 +135,14 @@ public class ArticleController implements Controller {
       return;
     }
 
-    Sql sql = Container.simpleDb.genSql();
-    sql.append("SELECT COUNT(*) > 0");
-    sql.append("FROM article");
-    sql.append("WHERE id = ?", id);
+    Map<String, Object> articleRow = articleService.findById(id);
 
-    boolean isExist = sql.selectBoolean();
-
-    if(!isExist) {
+    if (articleRow == null) {
       System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
       return;
     }
 
-    sql = Container.simpleDb.genSql();
-    sql.append("DELETE FROM article");
-    sql.append("WHERE id = ?", id);
-
-    sql.delete();
+    articleService.delete(id);
 
     System.out.printf("%d번 게시물이 삭제되었습니다.\n", id);
   }
