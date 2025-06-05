@@ -3,6 +3,7 @@ package com.sbs.boundedContext.article.controller;
 import com.sbs.boundedContext.article.dto.Article;
 import com.sbs.boundedContext.article.service.ArticleService;
 import com.sbs.boundedContext.common.controller.Controller;
+import com.sbs.boundedContext.member.dto.Member;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
 
@@ -50,7 +51,10 @@ public class ArticleController implements Controller {
       return;
     }
 
-    long newId = articleService.write(subject, content);
+    Member member = rq.getLoginedMember();
+    long memberId = member.getId();
+
+    long newId = articleService.write(memberId, subject, content);
 
     System.out.printf("%d번 게시물이 등록되었습니다.\n", newId);
   }
@@ -64,10 +68,10 @@ public class ArticleController implements Controller {
     }
 
     System.out.println("== 게시물 리스트 ==");
-    System.out.println("번호 | 제목 | 작성날짜");
+    System.out.println("번호 | 제목 | 작성날짜 | 작성자");
 
     articles.forEach(article -> {
-      System.out.printf("%d번 | %s | %s\n", article.getId(), article.getSubject(), article.getCreateDate());
+      System.out.printf("%d번 | %s | %s | %s\n", article.getId(), article.getSubject(), article.getCreateDate(), article.getExtra__writerName());
     });
   }
 
@@ -92,6 +96,7 @@ public class ArticleController implements Controller {
     System.out.printf("수정 날짜 : %s\n", article.getModifiedDate());
     System.out.printf("제목 : %s\n", article.getSubject());
     System.out.printf("내용 : %s\n", article.getContent());
+    System.out.printf("작성자 : %s\n", article.getExtra__writerName());
   }
 
   private void doModify(Rq rq) {
