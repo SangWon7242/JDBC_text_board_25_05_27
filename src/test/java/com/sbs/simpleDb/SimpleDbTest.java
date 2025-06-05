@@ -41,7 +41,7 @@ public class SimpleDbTest {
   }
 
   private void makeMemberTestData() {
-    IntStream.rangeClosed(1, 3).forEach(i -> {
+    IntStream.rangeClosed(1, 5).forEach(i -> {
       String username = "user%d".formatted(i);
       String password = "1234";
       String name = "이름%d".formatted(i);
@@ -66,9 +66,10 @@ public class SimpleDbTest {
           INSERT INTO article
           SET createDate = NOW(),
           modifiedDate = NOW(),
+          memberId = ?,
           subject = ?,
           content = ?;
-          """, subject, content);
+          """, i, subject, content);
     });
   }
 
@@ -80,6 +81,7 @@ public class SimpleDbTest {
           id INT UNSIGNED  NOT NULL PRIMARY KEY AUTO_INCREMENT,
           createDate DATETIME NOT NULL,
           modifiedDate DATETIME NOT NULL,
+          memberId INT UNSIGNED NOT NULL,
           subject CHAR(100) NOT NULL,
           content TEXT NOT NULL
         )
@@ -106,21 +108,24 @@ public class SimpleDbTest {
   public void t1() {
     String subject = "제목 new";
     String content = "내용 new";
+    int memberId = 1;
 
-  /*
-  simpleDb.run("""
-      INSERT INTO article
-      SET createDate = NOW(),
-      modifiedDate = NOW(),
-      subject = ?,
-      content = ?;
-      """, subject, content);
-   */
+    /*
+    simpleDb.run("""
+        INSERT INTO article
+        SET createDate = NOW(),
+        modifiedDate = NOW(),
+        memberId = ?,
+        subject = ?,
+        content = ?;
+        """, memberId, subject, content);
+     */
 
     Sql sql = simpleDb.genSql();
     sql.append("INSERT INTO article");
     sql.append("SET createDate = NOW()");
     sql.append(", modifiedDate = NOW()");
+    sql.append(", memberId = ?", memberId);
     sql.append(", subject = ?", subject);
     sql.append(", content = ?", content);
 
@@ -145,6 +150,7 @@ public class SimpleDbTest {
     // 정순 체크
     IntStream.range(0, articleRows.size()).forEach(i -> {
       long id = i + 1;
+      long memberId = i + 1;
       Map<String, Object> articleRow = articleRows.get(i);
 
       assertThat(articleRow.get("id")).isEqualTo(id);
@@ -152,6 +158,7 @@ public class SimpleDbTest {
       assertThat(articleRow.get("createDate")).isNotNull();
       assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
       assertThat(articleRow.get("modifiedDate")).isNotNull();
+      assertThat(articleRow.get("memberId")).isEqualTo(memberId);
       assertThat(articleRow.get("subject")).isEqualTo("제목 %d".formatted(id));
       assertThat(articleRow.get("content")).isEqualTo("내용 %d".formatted(id));
     });
@@ -174,6 +181,7 @@ public class SimpleDbTest {
     // 정순 체크
     IntStream.range(0, articleRows.size()).forEach(i -> {
       long id = articleRows.size() - i;
+      long memberId = articleRows.size() - i;
       Map<String, Object> articleRow = articleRows.get(i);
 
       assertThat(articleRow.get("id")).isEqualTo(id);
@@ -181,6 +189,7 @@ public class SimpleDbTest {
       assertThat(articleRow.get("createDate")).isNotNull();
       assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
       assertThat(articleRow.get("modifiedDate")).isNotNull();
+      assertThat(articleRow.get("memberId")).isEqualTo(memberId);
       assertThat(articleRow.get("subject")).isEqualTo("제목 %d".formatted(id));
       assertThat(articleRow.get("content")).isEqualTo("내용 %d".formatted(id));
     });
@@ -205,6 +214,7 @@ public class SimpleDbTest {
     assertThat(articleRow.get("createDate")).isNotNull();
     assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
     assertThat(articleRow.get("modifiedDate")).isNotNull();
+    assertThat(articleRow.get("memberId")).isEqualTo(1L);
     assertThat(articleRow.get("subject")).isEqualTo("제목 1");
     assertThat(articleRow.get("content")).isEqualTo("내용 1");
   }
@@ -280,6 +290,7 @@ public class SimpleDbTest {
     // 정순 체크
     IntStream.range(0, articleRows.size()).forEach(i -> {
       long id = i + 1;
+      long memberId = i + 1;
 
       Article article = articleRows.get(i);
 
@@ -288,6 +299,7 @@ public class SimpleDbTest {
       assertThat(article.getCreateDate()).isNotNull();
       assertThat(article.getModifiedDate()).isInstanceOf(LocalDateTime.class);
       assertThat(article.getModifiedDate()).isNotNull();
+      assertThat(article.getMemberId()).isEqualTo(memberId);
       assertThat(article.getSubject()).isEqualTo("제목 %d".formatted(id));
       assertThat(article.getContent()).isEqualTo("내용 %d".formatted(id));
     });
@@ -309,6 +321,7 @@ public class SimpleDbTest {
     assertThat(article.getCreateDate()).isNotNull();
     assertThat(article.getModifiedDate()).isInstanceOf(LocalDateTime.class);
     assertThat(article.getModifiedDate()).isNotNull();
+    assertThat(article.getMemberId()).isEqualTo(1);
     assertThat(article.getSubject()).isEqualTo("제목 1");
     assertThat(article.getContent()).isEqualTo("내용 1");
   }
@@ -316,7 +329,7 @@ public class SimpleDbTest {
   @Test
   @DisplayName("회원가입 테스트")
   public void t10() {
-    String username = "user4";
+    String username = "user6";
     String password = "1234";
     String name = "양관식";
 
@@ -384,5 +397,36 @@ public class SimpleDbTest {
     assertThat(member.getUsername()).isEqualTo("user1");
     assertThat(member.getPassword()).isEqualTo("1234");
     assertThat(member.getName()).isEqualTo("이름1");
+  }
+
+  @Test
+  @DisplayName("게시물 작성자 번호를 통한 게시물 조회")
+  public void t13() {
+    /*
+    SELECT A.*, M.name AS extra__writerName
+    FROM article AS A
+    INNER JOIN `member` AS M
+    ON A.memberId = M.id
+    WHERE M.id = 1;
+    */
+
+    Sql sql = simpleDb.genSql();
+    sql.append("SELECT A.*, M.name AS extra__writerName");
+    sql.append("FROM article AS A");
+    sql.append("INNER JOIN `member` AS M");
+    sql.append("ON A.memberId = M.id");
+    sql.append("WHERE M.id = 1;");
+
+    Article article = sql.selectRow(Article.class);
+
+    assertThat(article.getId()).isEqualTo(1L);
+    assertThat(article.getCreateDate()).isInstanceOf(LocalDateTime.class);
+    assertThat(article.getCreateDate()).isNotNull();
+    assertThat(article.getModifiedDate()).isInstanceOf(LocalDateTime.class);
+    assertThat(article.getModifiedDate()).isNotNull();
+    assertThat(article.getMemberId()).isEqualTo(1L);
+    assertThat(article.getSubject()).isEqualTo("제목 1");
+    assertThat(article.getContent()).isEqualTo("내용 1");
+    assertThat(article.getExtra__writerName()).isEqualTo("이름1");
   }
 }

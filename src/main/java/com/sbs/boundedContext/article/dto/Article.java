@@ -16,4 +16,6 @@ public class Article extends BaseDto {
   private LocalDateTime modifiedDate;
   private String subject;
   private String content;
+  private long memberId;
+  private String extra__writerName;
 }

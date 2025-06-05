@@ -27,6 +27,11 @@ public class ArticleController implements Controller {
   }
 
   public void doWrite(Rq rq) {
+    if(!rq.isLogined()) {
+      System.out.println("로그인 후 이용해주세요.");
+      return;
+    }
+
     System.out.println("== 게시물 작성 ==");
 
     System.out.print("제목 : ");
@@ -90,6 +95,11 @@ public class ArticleController implements Controller {
   }
 
   private void doModify(Rq rq) {
+    if(!rq.isLogined()) {
+      System.out.println("로그인 후 이용해주세요.");
+      return;
+    }
+
     long id = rq.getLongParam("id", 0L);
 
     if(id == 0) {
@@ -128,6 +138,11 @@ public class ArticleController implements Controller {
   }
 
   private void doDelete(Rq rq) {
+    if(!rq.isLogined()) {
+      System.out.println("로그인 후 이용해주세요.");
+      return;
+    }
+
     long id = rq.getLongParam("id", 0L);
 
     if(id == 0) {
