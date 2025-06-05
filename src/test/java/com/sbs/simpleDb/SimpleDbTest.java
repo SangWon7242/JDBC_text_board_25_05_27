@@ -1,6 +1,7 @@
 package com.sbs.simpleDb;
 
 import com.sbs.boundedContext.article.dto.Article;
+import com.sbs.boundedContext.member.dto.Member;
 import com.sbs.global.simpleDb.SimpleDb;
 import com.sbs.global.simpleDb.Sql;
 import org.junit.jupiter.api.*;
@@ -360,5 +361,28 @@ public class SimpleDbTest {
 
     boolean isExist = sql.selectBoolean();
     assertThat(isExist).isEqualTo(true);
+  }
+
+  @Test
+  @DisplayName("selectRow, Member")
+  public void t12() {
+    Sql sql = simpleDb.genSql();
+
+    String username = "user1";
+
+    sql.append("SELECT *");
+    sql.append("FROM `member`");
+    sql.append("WHERE username = ?", username);
+
+    Member member = sql.selectRow(Member.class);
+
+    assertThat(member.getId()).isEqualTo(1L);
+    assertThat(member.getCreateDate()).isInstanceOf(LocalDateTime.class);
+    assertThat(member.getCreateDate()).isNotNull();
+    assertThat(member.getModifiedDate()).isInstanceOf(LocalDateTime.class);
+    assertThat(member.getModifiedDate()).isNotNull();
+    assertThat(member.getUsername()).isEqualTo("user1");
+    assertThat(member.getPassword()).isEqualTo("1234");
+    assertThat(member.getName()).isEqualTo("이름1");
   }
 }

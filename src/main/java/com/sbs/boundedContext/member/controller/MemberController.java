@@ -1,6 +1,7 @@
 package com.sbs.boundedContext.member.controller;
 
 import com.sbs.boundedContext.common.controller.Controller;
+import com.sbs.boundedContext.member.dto.Member;
 import com.sbs.boundedContext.member.service.MemberService;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
@@ -25,6 +26,7 @@ public class MemberController implements Controller {
     String password;
     String passwordConfirm;
     String name;
+    Member member;
 
     System.out.println("== 회원 가입 ==");
     
@@ -35,6 +37,13 @@ public class MemberController implements Controller {
 
       if(username.trim().isEmpty()) {
         System.out.println("로그인 아이디를 입력해주세요.");
+        continue;
+      }
+
+      member = memberService.findByUsername(username);
+
+      if(member != null) {
+        System.out.printf("%s(은)는 존재하는 아이디입니다.\n", username);
         continue;
       }
 
