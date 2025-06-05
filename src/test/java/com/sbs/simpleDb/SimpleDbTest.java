@@ -31,11 +31,30 @@ public class SimpleDbTest {
   public void beforeEach() {
     truncateTable();
     makeArticleTestData();
+    makeMemberTestData();
   }
 
   private void truncateTable() {
     simpleDb.run("TRUNCATE `member`");
     simpleDb.run("TRUNCATE article");
+  }
+
+  private void makeMemberTestData() {
+    IntStream.rangeClosed(1, 3).forEach(i -> {
+      String username = "user%d".formatted(i);
+      String password = "1234";
+      String name = "이름%d".formatted(i);
+
+      Sql sql = simpleDb.genSql();
+      sql.append("INSERT INTO `member`");
+      sql.append("SET createDate = NOW()");
+      sql.append(", modifiedDate = NOW()");
+      sql.append(", username = ?", username);
+      sql.append(", password = ?", password);
+      sql.append(", `name` = ?", name);
+
+      sql.insert();
+    });
   }
 
   private void makeArticleTestData() {
@@ -57,11 +76,11 @@ public class SimpleDbTest {
 
     simpleDb.run("""
         CREATE TABLE article (
-        	id INT UNSIGNED  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        	createDate DATETIME NOT NULL,
-        	modifiedDate DATETIME NOT NULL,
-        	subject CHAR(100) NOT NULL,
-        	content TEXT NOT NULL
+          id INT UNSIGNED  NOT NULL PRIMARY KEY AUTO_INCREMENT,
+          createDate DATETIME NOT NULL,
+          modifiedDate DATETIME NOT NULL,
+          subject CHAR(100) NOT NULL,
+          content TEXT NOT NULL
         )
         """);
   }
@@ -80,22 +99,22 @@ public class SimpleDbTest {
         )
         """);
   }
-  
+
   @Test
   @DisplayName("INSERT 테스트")
   public void t1() {
     String subject = "제목 new";
     String content = "내용 new";
 
-    /*
-    simpleDb.run("""
-        INSERT INTO article
-        SET createDate = NOW(),
-        modifiedDate = NOW(),
-        subject = ?,
-        content = ?;
-        """, subject, content);
-     */
+  /*
+  simpleDb.run("""
+      INSERT INTO article
+      SET createDate = NOW(),
+      modifiedDate = NOW(),
+      subject = ?,
+      content = ?;
+      """, subject, content);
+   */
 
     Sql sql = simpleDb.genSql();
     sql.append("INSERT INTO article");
@@ -132,8 +151,8 @@ public class SimpleDbTest {
       assertThat(articleRow.get("createDate")).isNotNull();
       assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
       assertThat(articleRow.get("modifiedDate")).isNotNull();
-      assertThat(articleRow.get("subject")).isEqualTo("제목 %d". formatted(id));
-      assertThat(articleRow.get("content")).isEqualTo("내용 %d". formatted(id));
+      assertThat(articleRow.get("subject")).isEqualTo("제목 %d".formatted(id));
+      assertThat(articleRow.get("content")).isEqualTo("내용 %d".formatted(id));
     });
 
     assertThat(articleRows.size()).isEqualTo(5);
@@ -161,8 +180,8 @@ public class SimpleDbTest {
       assertThat(articleRow.get("createDate")).isNotNull();
       assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
       assertThat(articleRow.get("modifiedDate")).isNotNull();
-      assertThat(articleRow.get("subject")).isEqualTo("제목 %d". formatted(id));
-      assertThat(articleRow.get("content")).isEqualTo("내용 %d". formatted(id));
+      assertThat(articleRow.get("subject")).isEqualTo("제목 %d".formatted(id));
+      assertThat(articleRow.get("content")).isEqualTo("내용 %d".formatted(id));
     });
 
     assertThat(articleRows.size()).isEqualTo(5);
@@ -172,11 +191,11 @@ public class SimpleDbTest {
   @DisplayName("SELECT 테스트 3 : 원하는 게시물 번호 조회")
   public void t4() {
     Sql sql = simpleDb.genSql();
-    /*
-    sql.append("SELECT *");
-    sql.append("FROM article");
-    sql.append("WHERE id = 1");
-     */
+  /*
+  sql.append("SELECT *");
+  sql.append("FROM article");
+  sql.append("WHERE id = 1");
+   */
     sql.append("SELECT * FROM article WHERE id = 1");
     Map<String, Object> articleRow = sql.selectRow();
 
@@ -193,12 +212,12 @@ public class SimpleDbTest {
   @DisplayName("SELECT 테스트 4 : 원하는 게시물 유무 확인")
   public void t5() {
     Sql sql = simpleDb.genSql();
-    /*
-    SELECT COUNT(*) > 0
-    FROM article
-    WHERE id = 6
-    실행 결과값 : 1 or 0
-    */
+  /*
+  SELECT COUNT(*) > 0
+  FROM article
+  WHERE id = 6
+  실행 결과값 : 1 or 0
+  */
     sql.append("SELECT COUNT(*) > 0")
         .append("FROM article")
         .append("WHERE id = 6");
@@ -212,11 +231,11 @@ public class SimpleDbTest {
   public void t6() {
     Sql sql = simpleDb.genSql();
 
-    /*
-    UPDATE article
-    SET subject = '제목 new'
-    WHERE id IN (1, 2, 3, 4);
-    */
+  /*
+  UPDATE article
+  SET subject = '제목 new'
+  WHERE id IN (1, 2, 3, 4);
+  */
 
     sql.append("UPDATE article")
         .append("SET modifiedDate = NOW()")
@@ -233,10 +252,10 @@ public class SimpleDbTest {
   public void t7() {
     Sql sql = simpleDb.genSql();
 
-    /*
-    DELETE FROM article
-    WHERE id IN (1, 3, 5);
-    */
+  /*
+  DELETE FROM article
+  WHERE id IN (1, 3, 5);
+  */
 
     sql.append("DELETE FROM article")
         .append("WHERE id IN (?, ?, ?)", 1, 3, 5);
@@ -268,8 +287,8 @@ public class SimpleDbTest {
       assertThat(article.getCreateDate()).isNotNull();
       assertThat(article.getModifiedDate()).isInstanceOf(LocalDateTime.class);
       assertThat(article.getModifiedDate()).isNotNull();
-      assertThat(article.getSubject()).isEqualTo("제목 %d". formatted(id));
-      assertThat(article.getContent()).isEqualTo("내용 %d". formatted(id));
+      assertThat(article.getSubject()).isEqualTo("제목 %d".formatted(id));
+      assertThat(article.getContent()).isEqualTo("내용 %d".formatted(id));
     });
   }
 
@@ -296,7 +315,7 @@ public class SimpleDbTest {
   @Test
   @DisplayName("회원가입 테스트")
   public void t10() {
-    String username = "user1";
+    String username = "user4";
     String password = "1234";
     String name = "양관식";
 
@@ -321,5 +340,25 @@ public class SimpleDbTest {
 
     // 들어온 값이 0보다 크면 성공, 0보다 작으면 실패
     assertThat(newId).isGreaterThan(0);
+  }
+
+  @Test
+  @DisplayName("회원 아이디 존재여부 확인")
+  public void t11() {
+    String username = "user1";
+
+    /*
+    SELECT COUNT(*) > 0
+    FROM `member`
+    WHERE username = 'user1';
+    */
+
+    Sql sql = simpleDb.genSql();
+    sql.append("SELECT COUNT(*) > 0");
+    sql.append("FROM `member`");
+    sql.append("WHERE username = ?", username);
+
+    boolean isExist = sql.selectBoolean();
+    assertThat(isExist).isEqualTo(true);
   }
 }
