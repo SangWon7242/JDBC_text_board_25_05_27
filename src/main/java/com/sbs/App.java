@@ -3,6 +3,7 @@ package com.sbs;
 import com.sbs.boundedContext.article.controller.ArticleController;
 import com.sbs.boundedContext.common.controller.Controller;
 import com.sbs.boundedContext.member.controller.MemberController;
+import com.sbs.boundedContext.member.dto.Member;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
 import com.sbs.global.simpleDb.SimpleDb;
@@ -31,7 +32,13 @@ public class App {
     while (true) {
       Rq rq = new Rq();
 
+      Member member = rq.getLoginedMember();
+
       String promptName = "명령";
+
+      if(member != null) {
+        promptName = member.getUsername();
+      }
 
       System.out.printf("%s) ", promptName);
       String cmd = sc.nextLine();

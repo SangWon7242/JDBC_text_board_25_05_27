@@ -124,4 +124,8 @@ public class Rq {
   public boolean isLogout() {
     return !isLogined();
   }
+
+  public Member getLoginedMember() {
+    return (Member) getSessionAttr(loginedMember);
+  }
 }

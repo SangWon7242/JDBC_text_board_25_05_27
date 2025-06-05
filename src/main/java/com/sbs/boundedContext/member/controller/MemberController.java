@@ -20,6 +20,7 @@ public class MemberController implements Controller {
       case "/usr/member/join" -> doJoin(rq);
       case "/usr/member/login" -> doLogin(rq);
       case "/usr/member/logout" -> doLogout(rq);
+      case "/usr/member/myPage" -> showMyPage(rq);
     }
   }
 
@@ -174,5 +175,20 @@ public class MemberController implements Controller {
     long newId = memberService.join(username, password, name);
 
     System.out.printf("%d번 회원이 생성되었습니다.\n", newId);
+  }
+
+  private void showMyPage(Rq rq) {
+    if(!rq.isLogined()) {
+      System.out.println("로그인 후 이용해주세요.");
+      return;
+    }
+
+    Member member = rq.getLoginedMember();
+
+    System.out.printf("== '%s'님의 마이페이지 ==\n", member.getName());
+    System.out.printf("번호 : %d\n", member.getId());
+    System.out.printf("가입날짜 : %s\n", member.getCreateDate());
+    System.out.printf("로그인 아이디 : %s\n", member.getUsername());
+    System.out.printf("이름 : %s\n", member.getName());
   }
 }
