@@ -19,13 +19,20 @@ public class MemberController implements Controller {
     switch (rq.getUrlPath()) {
       case "/usr/member/join" -> doJoin(rq);
       case "/usr/member/login" -> doLogin(rq);
+      case "/usr/member/logout" -> doLogout(rq);
     }
   }
 
   private void doLogin(Rq rq) {
+    if(rq.isLogined()) {
+      System.out.println("이미 로그인 되어있습니다.");
+      return;
+    }
+
     String username;
     String password;
     Member member;
+
     System.out.println("== 로그인 ==");
 
     // 로그인 아이디 입력
@@ -76,7 +83,19 @@ public class MemberController implements Controller {
       break;
     }
 
+    rq.login(member);
+
     System.out.printf("'%s'님 로그인을 환영합니다.\n", member.getName());
+  }
+
+  private void doLogout(Rq rq) {
+    if(rq.isLogout()) {
+      System.out.println("로그인후 이용해주세요.");
+      return;
+    }
+
+    rq.logout();
+    System.out.println("로그아웃 되었습니다.");
   }
 
   private void doJoin(Rq rq) {

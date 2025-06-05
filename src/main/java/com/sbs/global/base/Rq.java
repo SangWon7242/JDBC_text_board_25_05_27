@@ -1,5 +1,8 @@
 package com.sbs.global.base;
 
+import com.sbs.boundedContext.member.dto.Member;
+import com.sbs.container.Container;
+import com.sbs.global.session.Session;
 import com.sbs.global.simpleDb.Sql;
 import com.sbs.global.util.Util;
 import lombok.Getter;
@@ -29,6 +32,15 @@ public class Rq {
   private String actionMethodName;
 
   private Sql sql;
+
+  private Session session;
+
+  private final String loginedMember;
+
+  public Rq() {
+    this.session = Container.session;
+    this.loginedMember = "loginedMember";
+  }
 
   public String getActionPath() {
     String[] commandBits = urlPath.split("/");
@@ -79,5 +91,37 @@ public class Rq {
     if (!params.containsKey(paramName)) return defaultValue;
 
     return params.get(paramName);
+  }
+
+  public Object getSessionAttr(String attrName) {
+    return session.getAttribute(attrName);
+  }
+
+  public void setSessionAttr(String attrName, Object value) {
+    session.setAttribute(attrName, value);
+  }
+
+  public void removeSessionAttr(String attrName) {
+    session.removeAttribute(attrName);
+  }
+
+  public boolean hasSessionAttr(String attrName) {
+    return session.hasAttribute(attrName);
+  }
+
+  public void login(Member member) {
+    setSessionAttr(loginedMember, member);
+  }
+
+  public void logout() {
+    removeSessionAttr(loginedMember);
+  }
+
+  public boolean isLogined() {
+    return hasSessionAttr(loginedMember);
+  }
+
+  public boolean isLogout() {
+    return !isLogined();
   }
 }
