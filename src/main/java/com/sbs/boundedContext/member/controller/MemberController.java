@@ -18,7 +18,65 @@ public class MemberController implements Controller {
   public void performAction(Rq rq) {
     switch (rq.getUrlPath()) {
       case "/usr/member/join" -> doJoin(rq);
+      case "/usr/member/login" -> doLogin(rq);
     }
+  }
+
+  private void doLogin(Rq rq) {
+    String username;
+    String password;
+    Member member;
+    System.out.println("== 로그인 ==");
+
+    // 로그인 아이디 입력
+    while (true) {
+      System.out.print("로그인 아이디 : ");
+      username = Container.scanner.nextLine();
+
+      if(username.trim().isEmpty()) {
+        System.out.println("로그인 아이디를 입력해주세요.");
+        continue;
+      }
+
+      member = memberService.findByUsername(username);
+
+      if(member == null) {
+        System.out.printf("%s(은)는 존재하지 않는 아이디입니다.\n", username);
+        continue;
+      }
+
+      break;
+    }
+
+    int tryPasswordMaxCount = 3;
+    int tryPasswordCount = 0;
+
+    // 로그인 비밀번호 입력
+    while (true) {
+      if(tryPasswordCount >= tryPasswordMaxCount) {
+        System.out.printf("비밀번호를 %d회 틀렸습니다. 로그인을 취소합니다.\n", tryPasswordMaxCount);
+        return;
+      }
+
+      System.out.print("로그인 비밀번호 : ");
+      password = Container.scanner.nextLine();
+
+      if(password.trim().isEmpty()) {
+        System.out.println("로그인 비밀번호를 입력해주세요.");
+        continue;
+      }
+
+      if(!member.getPassword().equals(password)) {
+        tryPasswordCount++;
+        System.out.println("비밀번호가 일치하지 않습니다.");
+        System.out.printf("비밀번호 틀린 횟수(%d / %d)\n", tryPasswordCount, tryPasswordMaxCount);
+        continue;
+      }
+
+      break;
+    }
+
+    System.out.printf("'%s'님 로그인을 환영합니다.\n", member.getName());
   }
 
   private void doJoin(Rq rq) {
