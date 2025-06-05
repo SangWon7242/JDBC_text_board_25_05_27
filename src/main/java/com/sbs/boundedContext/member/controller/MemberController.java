@@ -1,11 +1,18 @@
 package com.sbs.boundedContext.member.controller;
 
 import com.sbs.boundedContext.common.controller.Controller;
+import com.sbs.boundedContext.member.service.MemberService;
 import com.sbs.container.Container;
 import com.sbs.global.base.Rq;
-import com.sbs.global.simpleDb.Sql;
 
 public class MemberController implements Controller {
+  private MemberService memberService;
+
+  public MemberController() {
+    memberService = Container.memberService;
+  }
+
+
   @Override
   public void performAction(Rq rq) {
     switch (rq.getUrlPath()) {
@@ -78,15 +85,7 @@ public class MemberController implements Controller {
       break;
     }
 
-    Sql sql = Container.simpleDb.genSql();
-    sql.append("INSERT INTO `member`");
-    sql.append("SET createDate = NOW()");
-    sql.append(", modifiedDate = NOW()");
-    sql.append(", username = ?", username);
-    sql.append(", password = ?", password);
-    sql.append(", `name` = ?", name);
-
-    long newId = sql.insert();
+    long newId = memberService.join(username, password, name);
 
     System.out.printf("%d번 회원이 생성되었습니다.\n", newId);
   }
